@@ -1,0 +1,113 @@
+/*
+  Robot()
+  Motor()
+  Sensor()
+
+  array structure:
+
+    {
+      ,
+    }
+
+    send this:
+      -timestamp
+      -encoders: [encoder_A0, encoder_A1, encoder_B0, encoder_B1]
+      -voltage: [motor_A, motor_B, battery]
+      -current: [motor_A, motor_B, battery]
+      -distance: [ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5]
+      -accel: [x_axis, y_axis, z_axis]
+
+    receive this:
+      en_motor_A, dir_motor_A, speed_motor_A,
+      en_motor_B, dir_motor_B, speed_motor_B,
+      relay_0, relay_1, relay_2, relay_3
+      
+*/
+
+String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
+
+void setup() {
+  Serial.begin(115200);
+}
+
+void loop() {
+  get_data();
+
+  Serial.println(dataJSON);
+  Serial.println(int(dataJSON[1]));
+  Serial.println(int(dataJSON[3]));
+  Serial.println(int(dataJSON[5]));
+  Serial.println(int(dataJSON[7]));
+  Serial.println(int(dataJSON[9]));
+  Serial.println(int(dataJSON[11]));
+  Serial.println(int(dataJSON[13]));
+  Serial.println(int(dataJSON[15]));
+  Serial.println(int(dataJSON[17]));
+  Serial.println(int(dataJSON[19]));
+  Serial.println(int(dataJSON[21]));
+  Serial.println(int(dataJSON[23]));
+  Serial.println(int(dataJSON[25]));
+  Serial.println(int(dataJSON[27]));
+  Serial.println(int(dataJSON[29]));
+  Serial.println(int(dataJSON[31]));
+  Serial.println(int(dataJSON[33]));
+  Serial.println(int(dataJSON[35]));
+  Serial.println(int(dataJSON[37]));
+  delay(1000);
+}
+
+void get_data(){
+  // after get sensor reading convert to String
+  encoder_A0 = char(51);
+  encoder_A1 = char(52);
+  encoder_B0 = char(53);
+  encoder_B1 = char(54);
+  V_motor_A = char(55);
+  V_motor_B = char(56);
+  V_battery = char(57);
+  I_motor_A = char(58);
+  I_motor_B = char(59);
+  I_battery = char(60);
+  ultrassonic_0 = char(61);
+  ultrassonic_1 = char(62);
+  ultrassonic_2 = char(63);
+  ultrassonic_3 = char(64);
+  ultrassonic_4 = char(65);
+  ultrassonic_5 = char(66);
+  x_axis = char(67);
+  y_axis = char(68);
+  z_axis = char(69);
+  
+  dataJSON = "{";
+  dataJSON += encoder_A0 + ",";
+  dataJSON += encoder_A1 + ",";
+  dataJSON += encoder_B0 + ",";
+  dataJSON += encoder_B1 + ",";
+  dataJSON += V_motor_A + ",";
+  dataJSON += V_motor_B + ",";
+  dataJSON += V_battery + ",";
+  dataJSON += I_motor_A + ",";
+  dataJSON += I_motor_A + ",";
+  dataJSON += I_battery + ",";
+  dataJSON += ultrassonic_0 + ",";
+  dataJSON += ultrassonic_1 + ",";
+  dataJSON += ultrassonic_2 + ",";
+  dataJSON += ultrassonic_3 + ",";
+  dataJSON += ultrassonic_4 + ",";
+  dataJSON += ultrassonic_5 + ",";
+  dataJSON += x_axis + ",";
+  dataJSON += y_axis + ",";
+  dataJSON += z_axis + "}";
+}
+
+void set_motorA(bool en, bool dir, int speed){
+  Serial.print(en);
+  Serial.print(dir);
+  Serial.print(speed);
+}
+
+void set_motorB(bool en, bool dir, int speed){
+  Serial.print(en);
+  Serial.print(dir);
+  Serial.print(speed);
+}
