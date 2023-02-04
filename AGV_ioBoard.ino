@@ -24,16 +24,59 @@
       
 */
 
+class Sonar{
+  int trigPin;
+  int echoPin;
+  int maxDistance;
+  int currentDistance;
+  String sensorsArray[6];
+
+  public:
+  Sonar(int trigpin, int echopin, int maxdistance){
+    trigPin = trigpin;
+    echoPin = echopin;
+    maxDistance = maxdistance;
+
+    pinMode(trigPin, OUTPUT);
+    pinMode(echoPin, INPUT);
+    digitalWrite(trigPin, LOW);
+  }
+
+  int measure(){
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    
+    int time = pulseIn(echoPin, HIGH, 5000);
+    currentDistance = time*0.1715;
+    
+    if(currentDistance == 0){
+      currentDistance = maxDistance;
+    }
+
+    return currentDistance/4;
+  }
+
+};
+
+
 String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
+
+Sonar sensor0(34, 35, 255);
+Sonar sensor1(36, 37, 255);
+Sonar sensor2(38, 39, 255);
+Sonar sensor3(40, 41, 255);
+Sonar sensor4(42, 43, 255);
+Sonar sensor5(44, 45, 255);
 
 void setup() {
   Serial.begin(115200);
 }
 
 void loop() {
-  get_data();
+  send_data();
 
-  Serial.println(dataJSON);
+  Serial.println(dataJSON);/*
   Serial.println(int(dataJSON[1]));
   Serial.println(int(dataJSON[3]));
   Serial.println(int(dataJSON[5]));
@@ -43,20 +86,21 @@ void loop() {
   Serial.println(int(dataJSON[13]));
   Serial.println(int(dataJSON[15]));
   Serial.println(int(dataJSON[17]));
-  Serial.println(int(dataJSON[19]));
-  Serial.println(int(dataJSON[21]));
-  Serial.println(int(dataJSON[23]));
-  Serial.println(int(dataJSON[25]));
-  Serial.println(int(dataJSON[27]));
-  Serial.println(int(dataJSON[29]));
-  Serial.println(int(dataJSON[31]));
+  Serial.println(int(dataJSON[19]));*/
+  Serial.println(int(dataJSON[21])*4);
+  Serial.println(int(dataJSON[23])*4);
+  Serial.println(int(dataJSON[25])*4);
+  Serial.println(int(dataJSON[27])*4);
+  Serial.println(int(dataJSON[29])*4);
+  Serial.println(int(dataJSON[31])*4);/*
   Serial.println(int(dataJSON[33]));
   Serial.println(int(dataJSON[35]));
-  Serial.println(int(dataJSON[37]));
-  delay(1000);
+  Serial.println(int(dataJSON[37]));*/
+ 
+  delay(100);
 }
 
-void get_data(){
+void send_data(){
   // after get sensor reading convert to String
   encoder_A0 = char(51);
   encoder_A1 = char(52);
@@ -68,12 +112,12 @@ void get_data(){
   I_motor_A = char(58);
   I_motor_B = char(59);
   I_battery = char(60);
-  ultrassonic_0 = char(61);
-  ultrassonic_1 = char(62);
-  ultrassonic_2 = char(63);
-  ultrassonic_3 = char(64);
-  ultrassonic_4 = char(65);
-  ultrassonic_5 = char(66);
+  ultrassonic_0 = char(sensor0.measure());
+  ultrassonic_1 = char(sensor1.measure());
+  ultrassonic_2 = char(sensor2.measure());
+  ultrassonic_3 = char(sensor3.measure());
+  ultrassonic_4 = char(sensor4.measure());
+  ultrassonic_5 = char(sensor5.measure());
   x_axis = char(67);
   y_axis = char(68);
   z_axis = char(69);
@@ -100,6 +144,19 @@ void get_data(){
   dataJSON += z_axis + "}";
 }
 
+void get_data(String receiveData){
+  Serial.println(int(receiveData[1]));
+  Serial.println(int(receiveData[3]));
+  Serial.println(int(receiveData[5]));
+  Serial.println(int(receiveData[7]));
+  Serial.println(int(receiveData[9]));
+  Serial.println(int(receiveData[11]));
+  Serial.println(int(receiveData[13]));
+  Serial.println(int(receiveData[15]));
+  Serial.println(int(receiveData[17]));
+  Serial.println(int(receiveData[19]));
+}
+
 void set_motorA(bool en, bool dir, int speed){
   Serial.print(en);
   Serial.print(dir);
@@ -110,4 +167,8 @@ void set_motorB(bool en, bool dir, int speed){
   Serial.print(en);
   Serial.print(dir);
   Serial.print(speed);
+}
+
+void set_relays(bool coil_0, bool coil_1, bool coil_2, bool coil_3){
+
 }
