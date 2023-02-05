@@ -23,51 +23,17 @@
       relay_0, relay_1, relay_2, relay_3
       
 */
-
-class Sonar{
-  int trigPin;
-  int echoPin;
-  int maxDistance;
-  int currentDistance;
-  String sensorsArray[6];
-
-  public:
-  Sonar(int trigpin, int echopin, int maxdistance){
-    trigPin = trigpin;
-    echoPin = echopin;
-    maxDistance = maxdistance;
-
-    pinMode(trigPin, OUTPUT);
-    pinMode(echoPin, INPUT);
-    digitalWrite(trigPin, LOW);
-  }
-
-  int measure(){
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    
-    int time = pulseIn(echoPin, HIGH, 5000);
-    currentDistance = time*0.1715;
-    
-    if(currentDistance == 0){
-      currentDistance = maxDistance;
-    }
-
-    return currentDistance/4;
-  }
-
-};
-
+#include "Robot.h"
+#include "Sonar.h"
 
 String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
 
-Sonar sensor0(34, 35, 255);
-Sonar sensor1(36, 37, 255);
-Sonar sensor2(38, 39, 255);
-Sonar sensor3(40, 41, 255);
-Sonar sensor4(42, 43, 255);
-Sonar sensor5(44, 45, 255);
+Sonar sonar0(34, 35, 255);
+Sonar sonar1(36, 37, 255);
+Sonar sonar2(38, 39, 255);
+Sonar sonar3(40, 41, 255);
+Sonar sonar4(42, 43, 255);
+Sonar sonar5(44, 45, 255);
 
 void setup() {
   Serial.begin(115200);
@@ -112,12 +78,12 @@ void send_data(){
   I_motor_A = char(58);
   I_motor_B = char(59);
   I_battery = char(60);
-  ultrassonic_0 = char(sensor0.measure());
-  ultrassonic_1 = char(sensor1.measure());
-  ultrassonic_2 = char(sensor2.measure());
-  ultrassonic_3 = char(sensor3.measure());
-  ultrassonic_4 = char(sensor4.measure());
-  ultrassonic_5 = char(sensor5.measure());
+  ultrassonic_0 = char(sonar0.measure());
+  ultrassonic_1 = char(sonar1.measure());
+  ultrassonic_2 = char(sonar2.measure());
+  ultrassonic_3 = char(sonar3.measure());
+  ultrassonic_4 = char(sonar4.measure());
+  ultrassonic_5 = char(sonar5.measure());
   x_axis = char(67);
   y_axis = char(68);
   z_axis = char(69);
