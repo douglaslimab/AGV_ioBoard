@@ -25,6 +25,8 @@ class Robot {
     int readUltrasonicSensor4();
     int readUltrasonicSensor5();
 
+    int* getReadings();
+
   private:
     int leftMotorPwmPin;
     int leftMotorDirPin;
@@ -172,31 +174,76 @@ int Robot::readBattery(){
   return char(voltageValue) + char(currentValue);   // return char data type
 }
 
+int readUltrasonicSensor(int trigPin, int echoPin) {
+  int duration, distance;
+  
+  // Send trigger pulse
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  // Read echo pulse
+  duration = pulseIn(echoPin, HIGH);
+  
+  // Calculate distance
+  distance = (duration/2) / 29.1;
+  
+  return distance;
+}
+
 // read distance in mm read in sensor0
 int Robot::readUltrasonicSensor0(){
-  int value = 0;
-  // Sonar sonar(34, 35, 255);
-  // value = sonar.measure();
-  // [distance]
-  return char(value); // return char data type
+  int trigPin = 34;
+  int echoPin = 35;
+  return readUltrasonicSensor(trigPin, echoPin);
 }
+
 int Robot::readUltrasonicSensor1(){
-  int ultrasonicSensor1Value = 0;
-  return ultrasonicSensor1Value;
+  int trigPin = 36;
+  int echoPin = 37;
+  return readUltrasonicSensor(trigPin, echoPin);
 }
+
 int Robot::readUltrasonicSensor2(){
-  int ultrasonicSensor2Value = 0;
-  return ultrasonicSensor2Value;
+  int trigPin = 38;
+  int echoPin = 39;
+  return readUltrasonicSensor(trigPin, echoPin);
 }
+
 int Robot::readUltrasonicSensor3(){
-  int ultrasonicSensor3Value = 0;
-  return ultrasonicSensor3Value;
+  int trigPin = 40;
+  int echoPin = 41;
+  return readUltrasonicSensor(trigPin, echoPin);
 }
+
 int Robot::readUltrasonicSensor4(){
-  int ultrasonicSensor4Value = 0;
-  return ultrasonicSensor4Value;
+  int trigPin = 42;
+  int echoPin = 43;
+  return readUltrasonicSensor(trigPin, echoPin);
 }
+
 int Robot::readUltrasonicSensor5(){
-  int ultrasonicSensor5Value = 0;
-  return ultrasonicSensor5Value;
+  int trigPin = 44;
+  int echoPin = 45;
+  return readUltrasonicSensor(trigPin, echoPin);
+}
+
+int* Robot::getReadings(){
+  static int readings[15];
+
+  readings[0] = readLeftEncoder();
+  readings[2] = readRightEncoder();
+  readings[4] = readMotorsVoltage();
+  readings[6] = readMotorsCurrent();
+  readings[8] = readBattery();
+  readings[10] = readUltrasonicSensor0();
+  readings[11] = readUltrasonicSensor1();
+  readings[12] = readUltrasonicSensor2();
+  readings[13] = readUltrasonicSensor3();
+  readings[14] = readUltrasonicSensor4();
+  readings[15] = readUltrasonicSensor5();
+
+  return readings;
 }
