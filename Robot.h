@@ -1,8 +1,21 @@
+/*
+
+  implement encoders readings;
+  move robot according to cordinates;
+  avoidance collision control;
+  recalculate the way if there is obstacle;
+  detect collision (angle, direction);
+  control the motor speed controlling the pwm based on encoder readings;
+  calculate distance moved based on encoders;
+  
+
+*/
+
 class Robot {
   public:
     Robot();
     // motion methods
-    void moveForward();
+    void moveForward(int distance, int angle);
     void moveBackward();
     void turnLeft();
     void turnRight();
@@ -26,6 +39,13 @@ class Robot {
     int readUltrasonicSensor5();
 
     int* getReadings();
+
+    void pulseInterrupt();
+
+    void checkDistanceClearance();
+    void spinToClearestPoint();
+
+        void Robot::moveToPosition(int x, int y);
 
   private:
     int leftMotorPwmPin;
@@ -61,6 +81,10 @@ class Robot {
     int ultrasonicSensor4EchoPin;
     int ultrasonicSensor5TrigPin;
     int ultrasonicSensor5EchoPin;
+    
+    const int pulsePin = 2;
+    unsigned long pulseTime = 0;
+    unsigned long previousPulseTime = 0;
 
 };
 
@@ -107,10 +131,15 @@ Robot::Robot() {
   ultrasonicSensor5TrigPin = 29;
   ultrasonicSensor5EchoPin = 30;
   // other initializations
+
+  
 }
 
-void Robot::moveForward() {
-  // code to control the motors to move forward
+void Robot::moveForward(int distance, int angle) {
+  // reset encoders
+  // spin robot to desired angle
+  // keep in a loop while encoder distance < final distance and no obstacle
+  // stop
 }
 
 void Robot::moveBackward() {
@@ -246,4 +275,35 @@ int* Robot::getReadings(){
   readings[15] = readUltrasonicSensor5();
 
   return readings;
+}
+
+void Robot::pulseInterrupt(){
+  // Get the current time
+  pulseTime = micros();
+  
+  // Calculate the time between pulses
+  unsigned long deltaTime = pulseTime - previousPulseTime;
+  
+  // Store the current time as the previous pulse time for the next pulse
+  previousPulseTime = pulseTime;
+  
+  // Debugging output
+  Serial.println(deltaTime);
+}
+
+void Robot::checkDistanceClearance(){
+  // check ultrasonic sensor 0
+  // return distance
+}
+
+void Robot::spinToClearestPoint(){
+  // read all sensors
+  // find the clearest way
+  // spin the robot to the clearest way
+}
+
+void Robot::moveToPosition(int x, int y){
+  int distance = sqrt(x*x + y*y);
+  int angle = atan2(y, x) * 180 / PI;
+  moveForward(distance, angle);
 }
