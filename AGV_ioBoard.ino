@@ -24,16 +24,10 @@
       
 */
 #include "Robot.h"
-#include "Sonar.h"
 
 String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
 
-Sonar sonar0(34, 35, 255);
-Sonar sonar1(36, 37, 255);
-Sonar sonar2(38, 39, 255);
-Sonar sonar3(40, 41, 255);
-Sonar sonar4(42, 43, 255);
-Sonar sonar5(44, 45, 255);
+Robot robot;
 
 void setup() {
   Serial.begin(115200);
@@ -78,12 +72,12 @@ void send_data(){
   I_motor_A = char(58);
   I_motor_B = char(59);
   I_battery = char(60);
-  ultrassonic_0 = char(sonar0.measure());
-  ultrassonic_1 = char(sonar1.measure());
-  ultrassonic_2 = char(sonar2.measure());
-  ultrassonic_3 = char(sonar3.measure());
-  ultrassonic_4 = char(sonar4.measure());
-  ultrassonic_5 = char(sonar5.measure());
+  ultrassonic_0 = char(robot.readUltrasonicSensor0());
+  ultrassonic_1 = char(robot.readUltrasonicSensor1());
+  ultrassonic_2 = char(robot.readUltrasonicSensor2());
+  ultrassonic_3 = char(robot.readUltrasonicSensor3());
+  ultrassonic_4 = char(robot.readUltrasonicSensor4());
+  ultrassonic_5 = char(robot.readUltrasonicSensor5());
   x_axis = char(67);
   y_axis = char(68);
   z_axis = char(69);

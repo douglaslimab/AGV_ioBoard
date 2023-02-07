@@ -45,7 +45,7 @@ class Robot {
     void checkDistanceClearance();
     void spinToClearestPoint();
 
-        void Robot::moveToPosition(int x, int y);
+    void moveToPosition(int x, int y);
 
   private:
     int leftMotorPwmPin;
@@ -118,21 +118,32 @@ Robot::Robot() {
   batteryCurrentSensorPin = 18;
   
   // pins used to read ultrasonic sensors
-  ultrasonicSensor0TrigPin = 19;
-  ultrasonicSensor0EchoPin = 20;
-  ultrasonicSensor1TrigPin = 21;
-  ultrasonicSensor1EchoPin = 22;
-  ultrasonicSensor2TrigPin = 23;
-  ultrasonicSensor2EchoPin = 24;
-  ultrasonicSensor3TrigPin = 25;
-  ultrasonicSensor3EchoPin = 26;
-  ultrasonicSensor4TrigPin = 27;
-  ultrasonicSensor4EchoPin = 28;
-  ultrasonicSensor5TrigPin = 29;
-  ultrasonicSensor5EchoPin = 30;
-  // other initializations
+  ultrasonicSensor0TrigPin = 34;
+  ultrasonicSensor0EchoPin = 35;
+  ultrasonicSensor1TrigPin = 36;
+  ultrasonicSensor1EchoPin = 37;
+  ultrasonicSensor2TrigPin = 38;
+  ultrasonicSensor2EchoPin = 39;
+  ultrasonicSensor3TrigPin = 40;
+  ultrasonicSensor3EchoPin = 41;
+  ultrasonicSensor4TrigPin = 42;
+  ultrasonicSensor4EchoPin = 43;
+  ultrasonicSensor5TrigPin = 44;
+  ultrasonicSensor5EchoPin = 45;
 
-  
+  // other initializations
+  pinMode(ultrasonicSensor0TrigPin, OUTPUT);
+  pinMode(ultrasonicSensor0EchoPin, INPUT); 
+  pinMode(ultrasonicSensor1TrigPin, OUTPUT);
+  pinMode(ultrasonicSensor1EchoPin, INPUT); 
+  pinMode(ultrasonicSensor2TrigPin, OUTPUT);
+  pinMode(ultrasonicSensor2EchoPin, INPUT); 
+  pinMode(ultrasonicSensor3TrigPin, OUTPUT);
+  pinMode(ultrasonicSensor3EchoPin, INPUT); 
+  pinMode(ultrasonicSensor4TrigPin, OUTPUT);
+  pinMode(ultrasonicSensor4EchoPin, INPUT); 
+  pinMode(ultrasonicSensor5TrigPin, OUTPUT);
+  pinMode(ultrasonicSensor5EchoPin, INPUT);  
 }
 
 void Robot::moveForward(int distance, int angle) {
@@ -204,59 +215,43 @@ int Robot::readBattery(){
 }
 
 int readUltrasonicSensor(int trigPin, int echoPin) {
-  int duration, distance;
-  
-  // Send trigger pulse
-  digitalWrite(trigPin, LOW);
-  delayMicroseconds(2);
-  digitalWrite(trigPin, HIGH);
-  delayMicroseconds(10);
-  digitalWrite(trigPin, LOW);
-  
-  // Read echo pulse
-  duration = pulseIn(echoPin, HIGH);
-  
-  // Calculate distance
-  distance = (duration/2) / 29.1;
-  
-  return distance;
+    digitalWrite(trigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(trigPin, LOW);
+    
+    int time = pulseIn(echoPin, HIGH, 5000);
+    int currentDistance = time*0.1715;
+    
+    if(currentDistance == 0){
+      currentDistance = 255;
+    }
+
+    return currentDistance/4;   // divide by 4 to keep range of 255 bits
 }
 
 // read distance in mm read in sensor0
 int Robot::readUltrasonicSensor0(){
-  int trigPin = 34;
-  int echoPin = 35;
-  return readUltrasonicSensor(trigPin, echoPin);
+  return readUltrasonicSensor(ultrasonicSensor0TrigPin, ultrasonicSensor0EchoPin);
 }
 
 int Robot::readUltrasonicSensor1(){
-  int trigPin = 36;
-  int echoPin = 37;
-  return readUltrasonicSensor(trigPin, echoPin);
+  return readUltrasonicSensor(ultrasonicSensor1TrigPin, ultrasonicSensor1EchoPin);
 }
 
 int Robot::readUltrasonicSensor2(){
-  int trigPin = 38;
-  int echoPin = 39;
-  return readUltrasonicSensor(trigPin, echoPin);
+  return readUltrasonicSensor(ultrasonicSensor2TrigPin, ultrasonicSensor2EchoPin);
 }
 
 int Robot::readUltrasonicSensor3(){
-  int trigPin = 40;
-  int echoPin = 41;
-  return readUltrasonicSensor(trigPin, echoPin);
+  return readUltrasonicSensor(ultrasonicSensor3TrigPin, ultrasonicSensor3EchoPin);
 }
 
 int Robot::readUltrasonicSensor4(){
-  int trigPin = 42;
-  int echoPin = 43;
-  return readUltrasonicSensor(trigPin, echoPin);
+  return readUltrasonicSensor(ultrasonicSensor4TrigPin, ultrasonicSensor4EchoPin);
 }
 
 int Robot::readUltrasonicSensor5(){
-  int trigPin = 44;
-  int echoPin = 45;
-  return readUltrasonicSensor(trigPin, echoPin);
+  return readUltrasonicSensor(ultrasonicSensor5TrigPin, ultrasonicSensor5EchoPin);
 }
 
 int* Robot::getReadings(){
