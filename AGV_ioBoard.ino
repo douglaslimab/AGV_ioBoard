@@ -34,9 +34,9 @@ void setup() {
 }
 
 void loop() {
-  send_data();
-
-  Serial.println(dataJSON);/*
+//  send_data();
+  String output = robot.printStatusArray();
+  Serial.println(output);/*
   Serial.println(int(dataJSON[1]));
   Serial.println(int(dataJSON[3]));
   Serial.println(int(dataJSON[5]));
@@ -46,13 +46,13 @@ void loop() {
   Serial.println(int(dataJSON[13]));
   Serial.println(int(dataJSON[15]));
   Serial.println(int(dataJSON[17]));
-  Serial.println(int(dataJSON[19]));*/
+  Serial.println(int(dataJSON[19]));
   Serial.println(int(dataJSON[21])*4);
   Serial.println(int(dataJSON[23])*4);
   Serial.println(int(dataJSON[25])*4);
   Serial.println(int(dataJSON[27])*4);
   Serial.println(int(dataJSON[29])*4);
-  Serial.println(int(dataJSON[31])*4);/*
+  Serial.println(int(dataJSON[31])*4);
   Serial.println(int(dataJSON[33]));
   Serial.println(int(dataJSON[35]));
   Serial.println(int(dataJSON[37]));*/

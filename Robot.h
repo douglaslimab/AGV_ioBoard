@@ -46,6 +46,7 @@ class Robot {
     void spinToClearestPoint();
 
     void moveToPosition(int x, int y);
+    String printStatusArray();
 
   private:
     int leftMotorPwmPin;
@@ -226,7 +227,7 @@ int readUltrasonicSensor(int trigPin, int echoPin) {
       currentDistance = 255;
     }
 
-    return currentDistance/4;   // divide by 4 to keep range of 255 bits
+    return currentDistance;   // divide by 4 to keep range of 255 bits
 }
 
 // read distance in mm read in sensor0
@@ -301,4 +302,53 @@ void Robot::moveToPosition(int x, int y){
   int distance = sqrt(x*x + y*y);
   int angle = atan2(y, x) * 180 / PI;
   moveForward(distance, angle);
+}
+
+
+String Robot::printStatusArray(){
+  String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
+
+  // after get sensor reading convert to String
+  encoder_A0 = char(51);
+  encoder_A1 = char(52);
+  encoder_B0 = char(53);
+  encoder_B1 = char(54);
+  V_motor_A = char(55);
+  V_motor_B = char(56);
+  V_battery = char(57);
+  I_motor_A = char(58);
+  I_motor_B = char(59);
+  I_battery = char(60);
+  ultrassonic_0 = readUltrasonicSensor0();
+  ultrassonic_1 = readUltrasonicSensor1();
+  ultrassonic_2 = readUltrasonicSensor2();
+  ultrassonic_3 = readUltrasonicSensor3();
+  ultrassonic_4 = readUltrasonicSensor4();
+  ultrassonic_5 = readUltrasonicSensor5();
+  x_axis = char(67);
+  y_axis = char(68);
+  z_axis = char(69);
+  
+  dataJSON = "{";
+  dataJSON += encoder_A0 + ",";
+  dataJSON += encoder_A1 + ",";
+  dataJSON += encoder_B0 + ",";
+  dataJSON += encoder_B1 + ",";
+  dataJSON += V_motor_A + ",";
+  dataJSON += V_motor_B + ",";
+  dataJSON += V_battery + ",";
+  dataJSON += I_motor_A + ",";
+  dataJSON += I_motor_A + ",";
+  dataJSON += I_battery + ",";
+  dataJSON += ultrassonic_0 + ",";
+  dataJSON += ultrassonic_1 + ",";
+  dataJSON += ultrassonic_2 + ",";
+  dataJSON += ultrassonic_3 + ",";
+  dataJSON += ultrassonic_4 + ",";
+  dataJSON += ultrassonic_5 + ",";
+  dataJSON += x_axis + ",";
+  dataJSON += y_axis + ",";
+  dataJSON += z_axis + "}";
+
+  return dataJSON;
 }
