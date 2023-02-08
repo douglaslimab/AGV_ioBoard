@@ -22,6 +22,7 @@ class Robot {
     void stop();
 
     // sensing methods
+    void attachInterrupt(uint8_t pin, void (*isr)(), uint8_t mode);
     int readLeftEncoder();
     int readRightEncoder();
     
@@ -55,6 +56,8 @@ class Robot {
     int rightMotorPwmPin;
     int rightMotorDirPin;
     int rightMotorBreakPin;
+
+//    int pulseInterrupt;
 
     int leftEncoderSensor0Pin;
     int leftEncoderSensor1Pin;
@@ -100,12 +103,20 @@ Robot::Robot() {
   rightMotorDirPin = 7;
   rightMotorBreakPin = 8;
 
+
+  // Variables to store the time between pulses
+  unsigned long pulseTime = 0;
+  unsigned long previousPulseTime = 0;
+
   // encoders sensing pins
   leftEncoderSensor0Pin = 9;
   leftEncoderSensor1Pin = 10;
   rightEncoderSensor0Pin = 11;
   rightEncoderSensor1Pin = 12;
   
+  // Set the pulsePin as an input
+  pinMode(leftEncoderSensor0Pin, INPUT);
+    
   // motors voltage sensing pins
   leftMotorVoltageSensorPin = 13;
   rightMotorVoltageSensorPin = 14;
@@ -133,6 +144,7 @@ Robot::Robot() {
   ultrasonicSensor5EchoPin = 45;
 
   // other initializations
+  // ultrasonic sensors pins
   pinMode(ultrasonicSensor0TrigPin, OUTPUT);
   pinMode(ultrasonicSensor0EchoPin, INPUT); 
   pinMode(ultrasonicSensor1TrigPin, OUTPUT);
@@ -145,6 +157,10 @@ Robot::Robot() {
   pinMode(ultrasonicSensor4EchoPin, INPUT); 
   pinMode(ultrasonicSensor5TrigPin, OUTPUT);
   pinMode(ultrasonicSensor5EchoPin, INPUT);  
+}
+
+void Robot::attachInterrupt(uint8_t pin, void (*isr)(), uint8_t mode) {
+  ::attachInterrupt(digitalPinToInterrupt(pin), isr, mode);
 }
 
 void Robot::moveForward(int distance, int angle) {
@@ -170,6 +186,9 @@ void Robot::stop() {
   // code to stop the motors
 }
 
+int pulseInterrupt(){
+
+}
 // read speed and direction
 int Robot::readLeftEncoder(){
   int speed = 0;
@@ -319,7 +338,7 @@ String Robot::printStatusArray(){
   I_motor_A = char(58);
   I_motor_B = char(59);
   I_battery = char(60);
-  ultrassonic_0 = readUltrasonicSensor0();
+  ultrassonic_0 = readUltrasonicSensor0();  // all data need to be sent as char and converted after receiving
   ultrassonic_1 = readUltrasonicSensor1();
   ultrassonic_2 = readUltrasonicSensor2();
   ultrassonic_3 = readUltrasonicSensor3();
