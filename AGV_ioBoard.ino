@@ -26,6 +26,7 @@
 #include "Robot.h"
 
 Robot robot;
+byte data[10];
 
 void interruptServiceRoutine() {
   // Interrupt code here
@@ -37,19 +38,31 @@ void setup() {
 }
 
 void loop() {
+  get_data();
+
+  if(data[0] == 49){
+    if(int(robot.readUltrasonicSensor0()) > 100){
+      robot.moveForward();
+    }else{
+      robot.stop();
+    }
+  } else if(data[0] == 50){
+    robot.stop();
+  }
+
   Serial.println(robot.printStatusArray());
   delay(100);
 }
 
-void get_data(String receiveData){
-  Serial.println(int(receiveData[1]));
-  Serial.println(int(receiveData[3]));
-  Serial.println(int(receiveData[5]));
-  Serial.println(int(receiveData[7]));
-  Serial.println(int(receiveData[9]));
-  Serial.println(int(receiveData[11]));
-  Serial.println(int(receiveData[13]));
-  Serial.println(int(receiveData[15]));
-  Serial.println(int(receiveData[17]));
-  Serial.println(int(receiveData[19]));
+byte get_data(){
+  if (Serial.available()) {
+    for (int i = 0; i <= 4; i++) {
+      data[i] = Serial.read();
+      delay(5);
+    }
+  }    
+}
+
+void data_handler(){
+
 }

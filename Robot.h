@@ -15,7 +15,7 @@ class Robot {
   public:
     Robot();
     // motion methods
-    void moveForward(int distance, int angle);
+    void moveForward();
     void moveBackward();
     void turnLeft();
     void turnRight();
@@ -48,6 +48,7 @@ class Robot {
 
     void moveToPosition(int x, int y);
     String printStatusArray();
+    char getCommandsArray();
 
   private:
     int leftMotorPwmPin;
@@ -90,18 +91,21 @@ class Robot {
     unsigned long pulseTime = 0;
     unsigned long previousPulseTime = 0;
 
+    
+    byte robotData[10];
+
 };
 
 Robot::Robot() {
   // initialize pins and other settings
   
   // motor control pins
-  leftMotorPwmPin = 3;
-  leftMotorDirPin = 4;
-  leftMotorBreakPin = 5;
-  rightMotorPwmPin = 6;
-  rightMotorDirPin = 7;
-  rightMotorBreakPin = 8;
+  leftMotorPwmPin = 11;
+  leftMotorDirPin = 13;
+  leftMotorBreakPin = 8;
+  rightMotorPwmPin = 10;
+  rightMotorDirPin = 12;
+  rightMotorBreakPin = 9;
 
 
   // Variables to store the time between pulses
@@ -109,16 +113,16 @@ Robot::Robot() {
   unsigned long previousPulseTime = 0;
 
   // encoders sensing pins
-  leftEncoderSensor0Pin = 9;
-  leftEncoderSensor1Pin = 10;
-  rightEncoderSensor0Pin = 11;
-  rightEncoderSensor1Pin = 12;
+  leftEncoderSensor0Pin = 26;
+  leftEncoderSensor1Pin = 27;
+  rightEncoderSensor0Pin = 28;
+  rightEncoderSensor1Pin = 29;
   
   // Set the pulsePin as an input
   pinMode(leftEncoderSensor0Pin, INPUT);
     
   // motors voltage sensing pins
-  leftMotorVoltageSensorPin = 13;
+  leftMotorVoltageSensorPin = 19;
   rightMotorVoltageSensorPin = 14;
   
   // motors current sensing pins
@@ -163,11 +167,17 @@ void Robot::attachInterrupt(uint8_t pin, void (*isr)(), uint8_t mode) {
   ::attachInterrupt(digitalPinToInterrupt(pin), isr, mode);
 }
 
-void Robot::moveForward(int distance, int angle) {
+void Robot::moveForward() { // distance, angle, speed..
   // reset encoders
   // spin robot to desired angle
   // keep in a loop while encoder distance < final distance and no obstacle
   // stop
+  analogWrite(10, 250);
+  analogWrite(11, 250);
+  digitalWrite(12, HIGH);
+  digitalWrite(13, LOW);
+  digitalWrite(9, LOW);
+  digitalWrite(8, HIGH);
 }
 
 void Robot::moveBackward() {
@@ -184,6 +194,12 @@ void Robot::turnRight() {
 
 void Robot::stop() {
   // code to stop the motors
+  analogWrite(rightMotorPwmPin, 0);
+  analogWrite(leftMotorPwmPin, 0);
+  digitalWrite(rightMotorDirPin, LOW);
+  digitalWrite(leftMotorDirPin, LOW);
+  digitalWrite(rightMotorBreakPin, LOW);
+  digitalWrite(leftMotorBreakPin, LOW);
 }
 
 int pulseInterrupt(){
@@ -320,9 +336,8 @@ void Robot::spinToClearestPoint(){
 void Robot::moveToPosition(int x, int y){
   int distance = sqrt(x*x + y*y);
   int angle = atan2(y, x) * 180 / PI;
-  moveForward(distance, angle);
+  moveForward();
 }
-
 
 String Robot::printStatusArray(){
   String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
@@ -370,4 +385,14 @@ String Robot::printStatusArray(){
   dataJSON += z_axis + "}";
 
   return dataJSON;
+}
+
+char Robot::getCommandsArray(){
+  if (Serial.available()) {
+    for (int i = 0; i <= 4; i++) {
+      robotData[i] = Serial.read();
+      delay(5);
+    }
+  }
+  return robotData;
 }
