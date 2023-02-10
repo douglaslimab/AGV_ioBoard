@@ -143,15 +143,15 @@ Robot::Robot() {
   unsigned long previousPulseTime = 0;
 
   // encoders sensing pins
-  leftEncoderSensor0Pin = 26;
-  leftEncoderSensor1Pin = 27;
-  rightEncoderSensor0Pin = 28;
-  rightEncoderSensor1Pin = 29;
+  leftEncoderSensor0Pin = 20;
+  leftEncoderSensor1Pin = 21;
+  rightEncoderSensor0Pin = 18;
+  rightEncoderSensor1Pin = 19;
 
-  pinMode(leftEncoderSensor0Pin, INPUT);
-  pinMode(leftEncoderSensor1Pin, INPUT);
-  pinMode(rightEncoderSensor0Pin, INPUT);
-  pinMode(rightEncoderSensor1Pin, INPUT);
+  pinMode(leftEncoderSensor0Pin, INPUT_PULLUP);
+  pinMode(leftEncoderSensor1Pin, INPUT_PULLUP);
+  pinMode(rightEncoderSensor0Pin, INPUT_PULLUP);
+  pinMode(rightEncoderSensor1Pin, INPUT_PULLUP);
   
   // Set the pulsePin as an input
   pinMode(leftEncoderSensor0Pin, INPUT);
