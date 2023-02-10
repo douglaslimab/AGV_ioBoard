@@ -28,33 +28,20 @@
 Robot robot;
 byte data[10];
 
-void interruptServiceRoutine() {
-  // Interrupt code here
-}
-
-void setup() {
+void setup(){
   Serial.begin(115200);
-  robot.attachInterrupt(9, interruptServiceRoutine, RISING);
+  robot.initializeEncoderPins();
 }
 
-void loop() {
-  get_data();
-
-  if(data[0] == 49){
-    if(int(robot.readUltrasonicSensor0()) > 100){
-      robot.moveForward();
-    }else{
-      robot.stop();
-    }
-  } else if(data[0] == 50){
-    robot.stop();
-  }
+void loop(){
+  getData();
+  handleData();
 
   Serial.println(robot.printStatusArray());
   delay(100);
 }
 
-byte get_data(){
+byte getData(){
   if (Serial.available()) {
     for (int i = 0; i <= 4; i++) {
       data[i] = Serial.read();
@@ -63,6 +50,32 @@ byte get_data(){
   }    
 }
 
-void data_handler(){
-
+void handleData(){
+  if(data[0] == 49){
+    if(int(robot.readUltrasonicSensor0()) > 100){
+      robot.moveForward();
+    }else{
+      robot.stop();
+    }
+  } else if(data[0] == 50){
+    if(int(robot.readUltrasonicSensor3()) > 100){
+      robot.moveBackward();
+    }else{
+      robot.stop();
+    }
+  } else if(data[0] == 51){
+    if(int(robot.readUltrasonicSensor3()) > 100){
+      robot.turnLeft();
+    }else{
+      robot.stop();
+    }
+  } else if(data[0] == 52){
+    if(int(robot.readUltrasonicSensor3()) > 100){
+      robot.turnRight();
+    }else{
+      robot.stop();
+    }
+  } else if(data[0] == 53){
+    robot.stop();
+  }
 }

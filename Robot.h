@@ -10,6 +10,25 @@
   
 
 */
+void encoder1A_ISR(){
+  // code to handle the interrupt on encoder 1 pin A
+  Serial.println("1A");
+}
+
+void encoder1B_ISR(){
+  // code to handle the interrupt on encoder 1 pin B
+  Serial.println("1B");
+}
+
+void encoder2A_ISR(){
+  // code to handle the interrupt on encoder 2 pin A
+  Serial.println("2A");
+}
+
+void encoder2B_ISR(){
+  // code to handle the interrupt on encoder 2 pin B
+  Serial.println("2B");
+}
 
 class Robot {
   public:
@@ -22,14 +41,18 @@ class Robot {
     void stop();
 
     // sensing methods
-    void attachInterrupt(uint8_t pin, void (*isr)(), uint8_t mode);
+    void initializeEncoderPins(){
+      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor0Pin), encoder1A_ISR, RISING);
+      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor1Pin), encoder1B_ISR, RISING);
+      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor0Pin), encoder2A_ISR, RISING);
+      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor1Pin), encoder2B_ISR, RISING);
+      Serial.println("init..");
+    }
     int readLeftEncoder();
     int readRightEncoder();
     
-    int readMotorsVoltage();
-    
-    int readMotorsCurrent();
-    
+    int readMotorsVoltage();    
+    int readMotorsCurrent();    
     int readBattery();
 
     int readUltrasonicSensor0();
@@ -52,11 +75,11 @@ class Robot {
 
   private:
     int leftMotorPwmPin;
-    int leftMotorDirPin;
-    int leftMotorBreakPin;
+    int leftMotorInAPin;
+    int leftMotorInBPin;
     int rightMotorPwmPin;
-    int rightMotorDirPin;
-    int rightMotorBreakPin;
+    int rightMotorInAPin;
+    int rightMotorInBPin;
 
 //    int pulseInterrupt;
 
@@ -101,11 +124,18 @@ Robot::Robot() {
   
   // motor control pins
   leftMotorPwmPin = 11;
-  leftMotorDirPin = 13;
-  leftMotorBreakPin = 8;
+  leftMotorInAPin = 13;
+  leftMotorInBPin = 8;
   rightMotorPwmPin = 10;
-  rightMotorDirPin = 12;
-  rightMotorBreakPin = 9;
+  rightMotorInAPin = 12;
+  rightMotorInBPin = 9;
+
+  pinMode(leftMotorPwmPin, OUTPUT);
+  pinMode(leftMotorInAPin, OUTPUT);
+  pinMode(leftMotorInBPin, OUTPUT);
+  pinMode(rightMotorPwmPin, OUTPUT);
+  pinMode(rightMotorInAPin, OUTPUT);
+  pinMode(rightMotorInBPin, OUTPUT);
 
 
   // Variables to store the time between pulses
@@ -117,12 +147,17 @@ Robot::Robot() {
   leftEncoderSensor1Pin = 27;
   rightEncoderSensor0Pin = 28;
   rightEncoderSensor1Pin = 29;
+
+  pinMode(leftEncoderSensor0Pin, INPUT);
+  pinMode(leftEncoderSensor1Pin, INPUT);
+  pinMode(rightEncoderSensor0Pin, INPUT);
+  pinMode(rightEncoderSensor1Pin, INPUT);
   
   // Set the pulsePin as an input
   pinMode(leftEncoderSensor0Pin, INPUT);
     
   // motors voltage sensing pins
-  leftMotorVoltageSensorPin = 19;
+  leftMotorVoltageSensorPin = A0;
   rightMotorVoltageSensorPin = 14;
   
   // motors current sensing pins
@@ -163,43 +198,58 @@ Robot::Robot() {
   pinMode(ultrasonicSensor5EchoPin, INPUT);  
 }
 
-void Robot::attachInterrupt(uint8_t pin, void (*isr)(), uint8_t mode) {
-  ::attachInterrupt(digitalPinToInterrupt(pin), isr, mode);
-}
-
 void Robot::moveForward() { // distance, angle, speed..
   // reset encoders
   // spin robot to desired angle
   // keep in a loop while encoder distance < final distance and no obstacle
   // stop
-  analogWrite(10, 250);
-  analogWrite(11, 250);
-  digitalWrite(12, HIGH);
-  digitalWrite(13, LOW);
-  digitalWrite(9, LOW);
-  digitalWrite(8, HIGH);
+  analogWrite(rightMotorPwmPin, 250);
+  analogWrite(leftMotorPwmPin, 250);
+  digitalWrite(rightMotorInAPin, HIGH);
+  digitalWrite(rightMotorInBPin, LOW);
+  digitalWrite(leftMotorInAPin, LOW);
+  digitalWrite(leftMotorInBPin, HIGH);
 }
 
 void Robot::moveBackward() {
   // code to control the motors to move backward
+  analogWrite(rightMotorPwmPin, 250);
+  analogWrite(leftMotorPwmPin, 250);
+  digitalWrite(rightMotorInAPin, LOW);
+  digitalWrite(rightMotorInBPin, HIGH);
+  digitalWrite(leftMotorInAPin, HIGH);
+  digitalWrite(leftMotorInBPin, LOW);
 }
 
 void Robot::turnLeft() {
   // code to control the motors to turn left
+  analogWrite(rightMotorPwmPin, 250);
+  analogWrite(leftMotorPwmPin, 250);
+  digitalWrite(rightMotorInAPin, LOW);
+  digitalWrite(rightMotorInBPin, HIGH);
+  digitalWrite(leftMotorInAPin, LOW);
+  digitalWrite(leftMotorInBPin, HIGH);
 }
 
 void Robot::turnRight() {
   // code to control the motors to turn right
+  analogWrite(rightMotorPwmPin, 250);
+  analogWrite(leftMotorPwmPin, 250);
+  digitalWrite(rightMotorInAPin, HIGH);
+  digitalWrite(rightMotorInBPin, LOW);
+  digitalWrite(leftMotorInAPin, HIGH);
+  digitalWrite(leftMotorInBPin, LOW);
 }
 
 void Robot::stop() {
   // code to stop the motors
   analogWrite(rightMotorPwmPin, 0);
   analogWrite(leftMotorPwmPin, 0);
-  digitalWrite(rightMotorDirPin, LOW);
-  digitalWrite(leftMotorDirPin, LOW);
-  digitalWrite(rightMotorBreakPin, LOW);
-  digitalWrite(leftMotorBreakPin, LOW);
+  digitalWrite(rightMotorInAPin, LOW);
+  digitalWrite(leftMotorInAPin, LOW);
+  digitalWrite(rightMotorInBPin, LOW);
+  digitalWrite(leftMotorInBPin, LOW);
+  digitalWrite(leftMotorInBPin, LOW);
 }
 
 int pulseInterrupt(){
