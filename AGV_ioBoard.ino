@@ -36,7 +36,7 @@ void setup(){
 void loop(){
   getData();
   handleData();
-
+//  Serial.println(robot.readLeftEncoder());
   Serial.println(robot.printStatusArray());
   delay(100);
 }

@@ -10,24 +10,37 @@
   
 
 */
+
+volatile unsigned long pulseTimeLeft = 0;
+volatile unsigned long previousPulseTimeLeft = 0;
+volatile unsigned long deltaTimeLeft = 0;
+//volatile unsigned long countLeft;
+volatile unsigned long pulseTimeRight = 0;
+volatile unsigned long previousPulseTimeRight = 0;
+volatile unsigned long deltaTimeRight = 0;
+
+
+
 void encoder1A_ISR(){
-  // code to handle the interrupt on encoder 1 pin A
-  Serial.println("1A");
+  pulseTimeLeft = micros();
+  deltaTimeLeft = pulseTimeLeft - previousPulseTimeLeft;
+  previousPulseTimeLeft = pulseTimeLeft;
 }
 
 void encoder1B_ISR(){
   // code to handle the interrupt on encoder 1 pin B
-  Serial.println("1B");
+//  Serial.println("1B");
 }
 
 void encoder2A_ISR(){
-  // code to handle the interrupt on encoder 2 pin A
-  Serial.println("2A");
+  pulseTimeRight = micros();
+  deltaTimeRight = pulseTimeRight - previousPulseTimeRight;
+  previousPulseTimeRight = pulseTimeRight;
 }
 
 void encoder2B_ISR(){
   // code to handle the interrupt on encoder 2 pin B
-  Serial.println("2B");
+//  Serial.println("2B");
 }
 
 class Robot {
@@ -43,13 +56,16 @@ class Robot {
     // sensing methods
     void initializeEncoderPins(){
       attachInterrupt(digitalPinToInterrupt(leftEncoderSensor0Pin), encoder1A_ISR, RISING);
-      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor1Pin), encoder1B_ISR, RISING);
+//      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor1Pin), encoder1B_ISR, RISING);
       attachInterrupt(digitalPinToInterrupt(rightEncoderSensor0Pin), encoder2A_ISR, RISING);
-      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor1Pin), encoder2B_ISR, RISING);
+//      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor1Pin), encoder2B_ISR, RISING);
       Serial.println("init..");
     }
     int readLeftEncoder();
     int readRightEncoder();
+
+    int setLeftMotorSpeed(int speed);
+    int getLeftMotorError(int speed);
     
     int readMotorsVoltage();    
     int readMotorsCurrent();    
@@ -81,8 +97,6 @@ class Robot {
     int rightMotorInAPin;
     int rightMotorInBPin;
 
-//    int pulseInterrupt;
-
     int leftEncoderSensor0Pin;
     int leftEncoderSensor1Pin;
     int rightEncoderSensor0Pin;
@@ -109,11 +123,6 @@ class Robot {
     int ultrasonicSensor4EchoPin;
     int ultrasonicSensor5TrigPin;
     int ultrasonicSensor5EchoPin;
-    
-    const int pulsePin = 2;
-    unsigned long pulseTime = 0;
-    unsigned long previousPulseTime = 0;
-
     
     byte robotData[10];
 
@@ -198,6 +207,15 @@ Robot::Robot() {
   pinMode(ultrasonicSensor5EchoPin, INPUT);  
 }
 
+int Robot::setLeftMotorSpeed(int speed){
+
+  return getLeftMotorError(speed);
+}
+
+int Robot::getLeftMotorError(int speed){
+  return speed - readLeftEncoder();
+}
+
 void Robot::moveForward() { // distance, angle, speed..
   // reset encoders
   // spin robot to desired angle
@@ -252,25 +270,26 @@ void Robot::stop() {
   digitalWrite(leftMotorInBPin, LOW);
 }
 
-int pulseInterrupt(){
-
-}
 // read speed and direction
 int Robot::readLeftEncoder(){
-  int speed = 0;
-  int dir = 0;
+//  int speed = 0;
+//  int dir = 0;
 
   // [speed, dir]
-  return char(speed) + char(dir);  // return char data type
+//  speed = int(deltaTimeLeft*120/1000000);
+  double speed = 60*1000000/(120*deltaTimeLeft*34*3);
+  return speed; //char(speed) + char(dir);  // return char data type
 }
 
 // read speed and direction
 int Robot::readRightEncoder(){
-  int speed = 0;
-  int dir = 0;
+//  int speed = 0;
+//  int dir = 0;
 
   // [speed, dir]
-  return char(speed) + char(dir);  // return char data type
+//  speed = int(deltaTimeRight*120/1000000);
+  double speed = 60*1000000/(120*deltaTimeRight*34*3);
+  return speed; //char(speed) + char(dir);  // return char data type
 }
 
 // read voltage in both motors left and right
@@ -301,18 +320,19 @@ int Robot::readBattery(){
 }
 
 int readUltrasonicSensor(int trigPin, int echoPin) {
-    digitalWrite(trigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(trigPin, LOW);
-    
-    int time = pulseIn(echoPin, HIGH, 5000);
-    int currentDistance = time*0.1715;
-    
-    if(currentDistance == 0){
-      currentDistance = 255;
-    }
-
-    return currentDistance;   // divide by 4 to keep range of 255 bits
+  cli();
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
+  
+  int time = pulseIn(echoPin, HIGH, 5000);
+  int currentDistance = time*0.1715;
+  
+  if(currentDistance == 0){
+    currentDistance = 255;
+  }
+  sei();
+  return currentDistance;   // divide by 4 to keep range of 255 bits
 }
 
 // read distance in mm read in sensor0
@@ -359,17 +379,6 @@ int* Robot::getReadings(){
 }
 
 void Robot::pulseInterrupt(){
-  // Get the current time
-  pulseTime = micros();
-  
-  // Calculate the time between pulses
-  unsigned long deltaTime = pulseTime - previousPulseTime;
-  
-  // Store the current time as the previous pulse time for the next pulse
-  previousPulseTime = pulseTime;
-  
-  // Debugging output
-  Serial.println(deltaTime);
 }
 
 void Robot::checkDistanceClearance(){
@@ -393,9 +402,9 @@ String Robot::printStatusArray(){
   String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
 
   // after get sensor reading convert to String
-  encoder_A0 = char(51);
+  encoder_A0 = readLeftEncoder();
   encoder_A1 = char(52);
-  encoder_B0 = char(53);
+  encoder_B0 = readRightEncoder();
   encoder_B1 = char(54);
   V_motor_A = char(55);
   V_motor_B = char(56);
