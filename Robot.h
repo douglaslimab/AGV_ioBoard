@@ -422,8 +422,7 @@ String Robot::printStatusArray(){
   y_axis = char(68);
   z_axis = char(69);
   
-  dataJSON = "{";
-  dataJSON += encoder_A0 + ",";
+  dataJSON = encoder_A0 + ",";
   dataJSON += encoder_A1 + ",";
   dataJSON += encoder_B0 + ",";
   dataJSON += encoder_B1 + ",";
@@ -440,8 +439,7 @@ String Robot::printStatusArray(){
   dataJSON += ultrassonic_4 + ",";
   dataJSON += ultrassonic_5 + ",";
   dataJSON += x_axis + ",";
-  dataJSON += y_axis + ",";
-  dataJSON += z_axis + "}";
+  dataJSON += y_axis;
 
   return dataJSON;
 }
