@@ -8,6 +8,9 @@ volatile unsigned long previousPulseTimeRight = 0;
 volatile unsigned long deltaTimeRight = 0;
 volatile unsigned long countRight;
 
+volatile int setSpeedLeft = 0;
+volatile int setSpeedRight = 0;
+
 void encoder1A_ISR(){
   countLeft++;
   pulseTimeLeft = micros();
@@ -198,15 +201,22 @@ Robot::Robot() {
 }
 
 int Robot::setLeftMotorSpeed(int speed){
+  setSpeedLeft = speed;
 
-  return getLeftMotorError(speed);
+  int error = getLeftMotorError(setSpeedLeft);
+
+  float correction = error * 0.5;
+
+  setSpeedLeft += correction;
+
+  return error;
 }
 
 int Robot::getLeftMotorError(int speed){
   return speed - readLeftEncoder();
 }
 
-void Robot::moveForward() { // distance, angle, speed..
+void Robot::moveForward(){ // distance, angle, speed..
   // reset encoders
   // spin robot to desired angle
   // keep in a loop while encoder distance < final distance and no obstacle
