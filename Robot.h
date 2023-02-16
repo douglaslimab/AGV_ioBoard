@@ -1,46 +1,31 @@
-/*
-
-  implement encoders readings;
-  move robot according to cordinates;
-  avoidance collision control;
-  recalculate the way if there is obstacle;
-  detect collision (angle, direction);
-  control the motor speed controlling the pwm based on encoder readings;
-  calculate distance moved based on encoders;
-  
-
-*/
-
 volatile unsigned long pulseTimeLeft = 0;
 volatile unsigned long previousPulseTimeLeft = 0;
 volatile unsigned long deltaTimeLeft = 0;
-//volatile unsigned long countLeft;
+volatile unsigned long countLeft;
+
 volatile unsigned long pulseTimeRight = 0;
 volatile unsigned long previousPulseTimeRight = 0;
 volatile unsigned long deltaTimeRight = 0;
-
-
+volatile unsigned long countRight;
 
 void encoder1A_ISR(){
+  countLeft++;
   pulseTimeLeft = micros();
   deltaTimeLeft = pulseTimeLeft - previousPulseTimeLeft;
   previousPulseTimeLeft = pulseTimeLeft;
 }
 
 void encoder1B_ISR(){
-  // code to handle the interrupt on encoder 1 pin B
-//  Serial.println("1B");
 }
 
 void encoder2A_ISR(){
+  countRight++;
   pulseTimeRight = micros();
   deltaTimeRight = pulseTimeRight - previousPulseTimeRight;
   previousPulseTimeRight = pulseTimeRight;
 }
 
 void encoder2B_ISR(){
-  // code to handle the interrupt on encoder 2 pin B
-//  Serial.println("2B");
 }
 
 class Robot {
@@ -66,7 +51,14 @@ class Robot {
 
     int setLeftMotorSpeed(int speed);
     int getLeftMotorError(int speed);
+        
+    int getDistanceTravelledLeft();
+    int getDistanceTravelledRight();
+    void resetEncoders();
+
     
+    void spinAngle(int angle);
+
     int readMotorsVoltage();    
     int readMotorsCurrent();    
     int readBattery();
@@ -79,8 +71,6 @@ class Robot {
     int readUltrasonicSensor5();
 
     int* getReadings();
-
-    void pulseInterrupt();
 
     void checkDistanceClearance();
     void spinToClearestPoint();
@@ -270,26 +260,52 @@ void Robot::stop() {
   digitalWrite(leftMotorInBPin, LOW);
 }
 
+/*
+
+    Encoder Methods
+
+*/
+
 // read speed and direction
 int Robot::readLeftEncoder(){
-//  int speed = 0;
-//  int dir = 0;
-
-  // [speed, dir]
-//  speed = int(deltaTimeLeft*120/1000000);
   double speed = 60*1000000/(120*deltaTimeLeft*34*3);
   return speed; //char(speed) + char(dir);  // return char data type
 }
 
 // read speed and direction
 int Robot::readRightEncoder(){
-//  int speed = 0;
-//  int dir = 0;
-
-  // [speed, dir]
-//  speed = int(deltaTimeRight*120/1000000);
   double speed = 60*1000000/(120*deltaTimeRight*34*3);
   return speed; //char(speed) + char(dir);  // return char data type
+}
+
+int Robot::getDistanceTravelledLeft(){
+  return (countLeft/120)*(PI*72);
+}
+
+int Robot::getDistanceTravelledRight(){
+  return (countRight/120)*(PI*72);
+}
+
+void Robot::spinAngle(int angle){
+  const float wheelDiameter = 65;
+  const float distanceBetweenWheels = 200;
+  const float wheelCircumference = wheelDiameter * PI;
+
+  float arch = (angle / 360.0) * distanceBetweenWheels * PI;
+  int encoderCount = (int) ((arch / wheelCircumference) * 120.0);
+
+  turnLeft();
+
+  while (countLeft + countRight < encoderCount * 2){
+  }
+
+  stop();
+  resetEncoders();
+}
+
+void Robot::resetEncoders(){
+  countLeft = 0;
+  countRight = 0;
 }
 
 // read voltage in both motors left and right
@@ -319,6 +335,11 @@ int Robot::readBattery(){
   return char(voltageValue) + char(currentValue);   // return char data type
 }
 
+/*
+
+    Sonar Methods 
+
+*/
 int readUltrasonicSensor(int trigPin, int echoPin) {
   cli();
   digitalWrite(trigPin, HIGH);
@@ -360,6 +381,11 @@ int Robot::readUltrasonicSensor5(){
   return readUltrasonicSensor(ultrasonicSensor5TrigPin, ultrasonicSensor5EchoPin);
 }
 
+/*
+
+    Communication
+
+*/
 int* Robot::getReadings(){
   static int readings[15];
 
@@ -377,10 +403,11 @@ int* Robot::getReadings(){
 
   return readings;
 }
+/*
 
-void Robot::pulseInterrupt(){
-}
+    Navigation Methods
 
+*/
 void Robot::checkDistanceClearance(){
   // check ultrasonic sensor 0
   // return distance
@@ -398,10 +425,14 @@ void Robot::moveToPosition(int x, int y){
   moveForward();
 }
 
+/*
+
+    Send Sensor Readings
+
+*/
 String Robot::printStatusArray(){
   String dataJSON, encoder_A0, encoder_A1, encoder_B0, encoder_B1, V_motor_A, V_motor_B, V_battery, I_motor_A, I_motor_B, I_battery, ultrassonic_0, ultrassonic_1, ultrassonic_2, ultrassonic_3, ultrassonic_4, ultrassonic_5, x_axis, y_axis, z_axis;
 
-  // after get sensor reading convert to String
   encoder_A0 = readLeftEncoder();
   encoder_A1 = char(52);
   encoder_B0 = readRightEncoder();
@@ -412,7 +443,7 @@ String Robot::printStatusArray(){
   I_motor_A = char(58);
   I_motor_B = char(59);
   I_battery = char(60);
-  ultrassonic_0 = readUltrasonicSensor0();  // all data need to be sent as char and converted after receiving
+  ultrassonic_0 = readUltrasonicSensor0();
   ultrassonic_1 = readUltrasonicSensor1();
   ultrassonic_2 = readUltrasonicSensor2();
   ultrassonic_3 = readUltrasonicSensor3();
@@ -439,7 +470,8 @@ String Robot::printStatusArray(){
   dataJSON += ultrassonic_4 + ",";
   dataJSON += ultrassonic_5 + ",";
   dataJSON += x_axis + ",";
-  dataJSON += y_axis;
+  dataJSON += y_axis + ",";
+  dataJSON += z_axis;
 
   return dataJSON;
 }
