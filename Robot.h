@@ -44,9 +44,9 @@ class Robot {
     // sensing methods
     void initializeEncoderPins(){
       attachInterrupt(digitalPinToInterrupt(leftEncoderSensor0Pin), encoder1A_ISR, RISING);
-//      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor1Pin), encoder1B_ISR, RISING);
+      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor1Pin), encoder1B_ISR, RISING);
       attachInterrupt(digitalPinToInterrupt(rightEncoderSensor0Pin), encoder2A_ISR, RISING);
-//      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor1Pin), encoder2B_ISR, RISING);
+      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor1Pin), encoder2B_ISR, RISING);
       Serial.println("init..");
     }
     int readLeftEncoder();
@@ -205,9 +205,12 @@ int Robot::setLeftMotorSpeed(int speed){
 
   int error = getLeftMotorError(setSpeedLeft);
 
-  float correction = error * 0.5;
-
-  setSpeedLeft += correction;
+//  float correction = error * 0.5;
+  if (error > 0){
+    setSpeedLeft++;
+  } else {
+    setSpeedLeft--;
+  }
 
   return error;
 }
@@ -221,7 +224,9 @@ void Robot::moveForward(){ // distance, angle, speed..
   // spin robot to desired angle
   // keep in a loop while encoder distance < final distance and no obstacle
   // stop
-  analogWrite(rightMotorPwmPin, 250);
+  setLeftMotorSpeed(250);
+  analogWrite(rightMotorPwmPin, setSpeedLeft);
+  
   analogWrite(leftMotorPwmPin, 250);
   digitalWrite(rightMotorInAPin, HIGH);
   digitalWrite(rightMotorInBPin, LOW);

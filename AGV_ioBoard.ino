@@ -38,6 +38,13 @@ void loop(){
   handleData();
 //  Serial.println(robot.readLeftEncoder());
   Serial.println(robot.printStatusArray());
+  if(countLeft >= 10000){
+    robot.stop();
+    Serial.println(countLeft);
+    delay(1000);
+    countLeft = 0;
+  }
+  Serial.print(countLeft);
   delay(100);
 }
 
