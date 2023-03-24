@@ -12,7 +12,7 @@ volatile int setSpeedLeft = 0;
 volatile int setSpeedRight = 0;
 
 void encoder1A_ISR(){
-  countLeft++;
+//  countLeft++;
   pulseTimeLeft = micros();
   deltaTimeLeft = pulseTimeLeft - previousPulseTimeLeft;
   previousPulseTimeLeft = pulseTimeLeft;
@@ -22,7 +22,7 @@ void encoder1B_ISR(){
 }
 
 void encoder2A_ISR(){
-  countRight++;
+//  countRight++;
   pulseTimeRight = micros();
   deltaTimeRight = pulseTimeRight - previousPulseTimeRight;
   previousPulseTimeRight = pulseTimeRight;
@@ -44,9 +44,9 @@ class Robot {
     // sensing methods
     void initializeEncoderPins(){
       attachInterrupt(digitalPinToInterrupt(leftEncoderSensor0Pin), encoder1A_ISR, RISING);
-      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor1Pin), encoder1B_ISR, RISING);
+//      attachInterrupt(digitalPinToInterrupt(leftEncoderSensor1Pin), encoder1B_ISR, RISING);
       attachInterrupt(digitalPinToInterrupt(rightEncoderSensor0Pin), encoder2A_ISR, RISING);
-      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor1Pin), encoder2B_ISR, RISING);
+//      attachInterrupt(digitalPinToInterrupt(rightEncoderSensor1Pin), encoder2B_ISR, RISING);
       Serial.println("init..");
     }
     int readLeftEncoder();
@@ -224,9 +224,10 @@ void Robot::moveForward(){ // distance, angle, speed..
   // spin robot to desired angle
   // keep in a loop while encoder distance < final distance and no obstacle
   // stop
-  setLeftMotorSpeed(250);
-  analogWrite(rightMotorPwmPin, setSpeedLeft);
-  
+//  setLeftMotorSpeed(250);
+//  analogWrite(rightMotorPwmPin, setSpeedLeft);
+
+  analogWrite(rightMotorPwmPin, 250);
   analogWrite(leftMotorPwmPin, 250);
   digitalWrite(rightMotorInAPin, HIGH);
   digitalWrite(rightMotorInBPin, LOW);
